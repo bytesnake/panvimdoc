@@ -23,6 +23,7 @@ Arguments:
   --shift-heading-level-by: 0 if you don't want to shift heading levels , n otherwise
   --increment-heading-level-by: 0 if don't want to increment the starting heading number, n otherwise
   --scripts-dir: '/scripts' if 'GITHUB_ACTIONS=true' or '.dockerenv' is present, '$0/scripts' if no argument is passed, scripts directory otherwise
+  --working-directory: change the working directory prior to running pandoc
 EOF
     exit 0
 }
@@ -107,6 +108,11 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
+    --working-directory)
+        WORKING_DIRECTORY="$2"
+        shift # past argument
+        shift # past value
+        ;;
     --help | -h)
         usage
         ;;
@@ -161,6 +167,10 @@ if [[ ${DEMOJIFY:-false} == "true" ]]; then
 fi
 
 ARGS+=("-t" "$SCRIPTS_DIR/panvimdoc.lua")
+
+if [[ -z ${WORKING_DIRECTORY} ]]; then
+	cd $WORKING_DIRECTORY
+fi
 
 # Print and execute the command
 printf "%s\n" "pandoc --citeproc ${ARGS[*]} $INPUT_FILE -o doc/$PROJECT_NAME.txt"
